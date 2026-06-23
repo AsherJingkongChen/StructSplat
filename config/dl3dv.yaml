@@ -1,0 +1,159 @@
+parent: null
+exp_name: dl3dv
+key_word: default
+print_info: true
+
+module:
+  geo_encoder:
+    path: ckpts/vggt
+    img_size: 518
+  
+  sem_encoder:
+    type: dinov3_convnext_large
+    path: ckpts/dinov3_convnext_large
+
+  tex_encoder:
+    enabled: true
+  
+  gaussian_decoder:
+    activations:
+    - scaled_softplus # depth
+    - sigmoid2m # opacity
+    - mul_0p25 # color
+    - softplus_beta-log2 # scale
+    - norm_dim3 # rotation
+    channels: 256
+    pos_embed: false
+    padding_mode: zeros
+    gaussians_per_pixel: 7
+
+gs_setting:
+  absgrad: false
+  depth_clip:
+    far: 100.0
+    near: 0.01
+  rasterize_mode: classic
+  scale_modifier: 0.005
+  sh_degree: 0
+  white_bg: false
+
+gaussian_training_stage:
+  gaussian_dropout: 0.1
+  
+  total_steps: &gaussian_total_steps 60000
+  init_ckpt:
+    gaussian: null
+  
+  data:
+    name: dl3dv
+    batch_size: 4
+    distance_range_between_src_views:
+    - 10
+    - 10
+    tar_ratio: 4
+    min_src_number: 2
+    max_src_number_range:
+    - 2
+    - 2
+    increasing_src_number_frequency: 1000
+    img_number: 111
+    annotation:
+    - dataset_annotations/dl3dv_train_clean.json
+    num_workers: 0
+    resize: &img_resize
+      crop: false
+      new_size: [294, 518]
+
+  deepspeed_config:
+    activation_checkpointing:
+      cpu_checkpointing: false
+      partition_activations: true
+      profile: false
+      synchronize_checkpoint_boundary: true
+    bf16:
+      enabled: true
+    gradient_clipping: 1.0
+    zero_allow_untested_optimizer: true
+    zero_optimization:
+      contiguous_gradients: true
+      offload_optimizer:
+        device: cpu
+        pin_memory: true
+      offload_param:
+        device: cpu
+        pin_memory: true
+      overlap_comm: true
+      reduce_bucket_size: 1000
+      stage: 3
+      stage3_max_live_parameters: 1000
+      stage3_max_reuse_distance: 1000
+      stage3_param_persistence_threshold: 1000
+      stage3_prefetch_bucket_size: 1000
+
+  loss:
+    depth_regularization:
+      type: l2
+      threshold: 20
+      factor: 0.1
+    loss_factors:
+      - 1.0
+      - 0.1
+      - 0.1
+    loss_types:
+      - l2_loss
+      - ssim
+      - lpips
+    
+  optimizer:
+    type: DeepSpeedCPUAdam
+    params:
+      lr: 1.0e-05
+      weight_decay: 0.01
+    
+  scheduler:
+    type: WSD
+    params:
+      total_steps: *gaussian_total_steps
+      start_factor: 0.001
+      end_factor: 0.001
+      warmup_steps: 100
+      stable_step_ratio: 0.9
+      decay_step_ratio: 0.05
+
+  recording:
+    saving_dir: records
+    ckpt_interval_steps: 1000
+    visualization_interval_steps: 100
+
+
+gaussian_evaluation_stage:
+  resolution: [256, 256]
+  ckpt: "ckpts/structsplat.bin"
+  data:
+    name: dl3dv
+    batch_size: 1
+    annotation:
+    - dataset_annotations/dl3dv_eva_src-2_tar-2.json
+    num_workers: 0
+    resize: *img_resize
+
+  recording:
+    saving_dir: records
+
+  pose_post_opt:
+    enabled: false
+    iteration: 100
+    lr_rot: 5.0e-3
+    lr_trans: 5.0e-3
+    loss:
+      depth_regularization:
+        type: null
+        threshold: 20
+        factor: 0
+      loss_factors:
+        - 1.0
+        - 0.1
+      loss_types:
+        - l2_loss
+        - lpips
+
