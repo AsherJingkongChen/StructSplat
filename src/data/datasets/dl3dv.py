@@ -59,7 +59,7 @@ class TrainDataSet(Dataset):
         random.seed(step_idx)
 
         max_src_number = self.max_src_number_range[0] + (step_idx // self.increasing_frequency)
-        max_src_number = min(max_src_number, (img_number - 1) // src_distance_range[1] + 1)
+        max_src_number = min(max_src_number, (img_number - 1) // src_distance_range[1] + 1, self.max_src_number_range[1])
         src_number = random.randint(self.min_src_number, max_src_number)
         max_src_range = (src_number - 1) * src_distance_range[1] + 1
 

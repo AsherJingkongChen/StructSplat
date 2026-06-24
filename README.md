@@ -65,7 +65,7 @@ pip install -r requirements.txt
 
 - DL3DV
 
-  Download [training set](https://huggingface.co/datasets/DL3DV/DL3DV-ALL-960P) and [evaluation set](https://huggingface.co/datasets/DL3DV/DL3DV-Benchmark). Put them into folder **data** as:
+  Download [training set](https://huggingface.co/datasets/DL3DV/DL3DV-ALL-960P) and [evaluation set](https://huggingface.co/datasets/DL3DV/DL3DV-Benchmark). Put them into folder `data` as:
 
   ```
   data
@@ -79,7 +79,7 @@ pip install -r requirements.txt
   ```
 
 ## Training
-- Download pretrained [VGGT](https://huggingface.co/facebook/VGGT-1B) and [Dino V3](https://huggingface.co/facebook/dinov3-convnext-large-pretrain-lvd1689m) checkpoints. Put them into folder **ckpts** as:
+- Download pretrained [VGGT](https://huggingface.co/facebook/VGGT-1B) and [Dino V3](https://huggingface.co/facebook/dinov3-convnext-large-pretrain-lvd1689m) checkpoints. Put them into folder `ckpts` as:
 
   ```
   ckpts
@@ -91,19 +91,46 @@ pip install -r requirements.txt
   ```
 - Run the following command to train the model:
   ```
-  python train.py -s gaussian_training_stage -c config/dl3dv.yaml
+  python train.py -c config/dl3dv.yaml
   ```
+- Importan arguments:
+  - `--conf`or`-c`:  Configuration file path.
+  - `--gaussian_training_stage.data.annotations`: List of training data annotation file pathes, default: ```[dataset_annotations/dl3dv_train_clean.json]```.
+
+
 ## Evaluation
-- Download our pretrained checkpoint from [](). Put it into folder **ckpts** as:
+- **[Optional]** Download our pretrained checkpoint from [xxx](). Put it into folder **ckpts** as:
   ```
   ckpts
   ├── dinov3_convnext_large
   │   └── ...
   ├── vggt
   │   └── ...
-  └── ...
+  └── structsplat
+      └── pytorch_model.bin
   ```
+- **[Optional]** Convert a trained checkpoint from Deepspeed format into binary format: 
+  ```
+  python -m deepspeed.utils.zero_to_fp32 "$deepspeed_checkpoint_dir" "ckpts/structsplat" --max_shard_size 10GB
+  ```
+- Run the following command to evaluate the model:
+  ```
+  python evaluation.py -c config/dl3dv.yaml
+  ```
+- Importan arguments:
+  - `--conf`or`-c`:  Configuration file path.
+  - `--gaussian_evaluation_stage.data.annotations`: List of evaluation data annotation file pathes, default: ```[dataset_annotations/dl3dv_eva_src-2_tar-2.json]```.
+  - `--gaussian_evaluation_stage.ckpt`: Checkpoint file path, default: ```ckpts/structsplat/pytorch_model.bin```.
 
+## Citation
+ ```
+ @inproceedings{zhao2026structsplat,
+  title={StructSplat: Generalizable 3D Gaussian Splatting from Uncalibrated Sparse Views},
+  author={Zhao, Jia-Chen and Chen, Beiqi and Chen, Xinyang and Wang, Guangcong and Nie, Liqing},
+  booktitle={European Conference on Computer Vision},
+  year={2026}
+}
+ ```
 
 
 

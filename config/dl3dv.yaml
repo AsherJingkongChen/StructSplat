@@ -57,7 +57,7 @@ gaussian_training_stage:
     - 2
     increasing_src_number_frequency: 1000
     img_number: 111
-    annotation:
+    annotations:
     - dataset_annotations/dl3dv_train_clean.json
     num_workers: 0
     resize: &img_resize
@@ -128,11 +128,11 @@ gaussian_training_stage:
 
 gaussian_evaluation_stage:
   resolution: [256, 256]
-  ckpt: "ckpts/structsplat.bin"
+  ckpt: "ckpts/structsplat/pytorch_model.bin"
   data:
     name: dl3dv
     batch_size: 1
-    annotation:
+    annotations:
     - dataset_annotations/dl3dv_eva_src-2_tar-2.json
     num_workers: 0
     resize: *img_resize

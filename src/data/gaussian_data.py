@@ -7,13 +7,13 @@ from data.utils import DataLoaderX
 
 def read_train_scenes_(cfg):
     cfg.gaussian_training_stage.data.scenes = []
-    for js_path in cfg.gaussian_training_stage.data.annotation:
+    for js_path in cfg.gaussian_training_stage.data.annotations:
         with open(js_path) as f:
             cfg.gaussian_training_stage.data.scenes.extend(json.load(f))
 
 def read_test_scenes_(cfg):
     cfg.gaussian_evaluation_stage.data.scenes = []
-    for js_path in cfg.gaussian_evaluation_stage.data.annotation:
+    for js_path in cfg.gaussian_evaluation_stage.data.annotations:
         with open(js_path) as f:
             cfg.gaussian_evaluation_stage.data.scenes.extend(json.load(f))
 
