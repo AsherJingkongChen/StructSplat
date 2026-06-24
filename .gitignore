@@ -3,7 +3,9 @@
 log
 logger
 records
-ckpts/*
-data/*
+ckpts/dinov3_convnext_large
+ckpts/structsplat
+ckpts/vggt
+data/dl3dv
 dataset_annotation_old
 playground.py
