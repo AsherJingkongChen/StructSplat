@@ -7,7 +7,7 @@ StructSplat: Generalizable 3D Gaussian Splatting from Uncalibrated Sparse Views
 Jia-Chen Zhao<sup>1,2</sup>&emsp;
 Beiqi Chen<sup>1</sup>&emsp;
 <a href='https://chenxinyang123.github.io/' target='_blank'>Xinyang Chen</a><sup>1</sup>&emsp;
-<a href='https://wanggcong.github.io/' target='_blank'>Guangcong Wang</a><sup>2</sup>&emsp;
+<a href='https://wanggcong.github.io/' target='_blank'>Guangcong Wang</a><sup>2,3</sup>&emsp;
 Liqing Nie<sup>1</sup>
 </div>
 
@@ -16,10 +16,10 @@ Liqing Nie<sup>1</sup>
     <sup>1</sup>Harbin Institute of Technology (Shenzhen)
 &emsp;
     <sup>2</sup>Great Bay University
+&emsp;
+    <sup>3</sup>Guangzhou CloudButterfly Technology  Co., Ltd.
     </b>
 </div>
-
-![teaser](asserts/teaser.svg)
 
 <p align="center">
   <a href=" " target='_blank'>
@@ -38,6 +38,8 @@ Liqing Nie<sup>1</sup>
     <img src="https://img.shields.io/badge/ECCV2024-Poster-red">
   </a> -->
 </p>
+
+![teaser](asserts/teaser.svg)
 
 >**TL;DR**: We present StructSplat, a feed-forward and generalizable NVS framework that predicts 3D gaussians from uncalibrated images without requiring camera parameters.
 
