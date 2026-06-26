@@ -6,8 +6,8 @@ StructSplat: Generalizable 3D Gaussian Splatting from Uncalibrated Sparse Views
 <div align="center">
 Jia-Chen Zhao<sup>1,2</sup>&emsp;
 Beiqi Chen<sup>1</sup>&emsp;
-Xinyang Chen<sup>1</sup>&emsp;
-Guangcong Wang<sup>2</sup>&emsp;
+<a href='https://chenxinyang123.github.io/' target='_blank'>Xinyang Chen</a><sup>1</sup>&emsp;
+<a href='https://wanggcong.github.io/' target='_blank'>Guangcong Wang</a><sup>2</sup>&emsp;
 Liqing Nie<sup>1</sup>
 </div>
 
@@ -21,23 +21,23 @@ Liqing Nie<sup>1</sup>
 
 ![teaser](asserts/teaser.svg)
 
-<!-- <p align="center">
-  <a href="https://arxiv.org/abs/2405.12218" target='_blank'>
-    <img src="http://img.shields.io/badge/cs.CV-arXiv%3A2405.12218-B31B1B.svg">
+<p align="center">
+  <a href="" target='_blank'>
+    <img src="http://img.shields.io/badge/ArXiv-TBD-B31B1B.svg">
   </a>
-  <a href="https://mvsgaussian.github.io/" target='_blank'>
+  <a href="https://structsplat.github.io/" target='_blank'>
     <img src="https://img.shields.io/badge/Project Page-%F0%9F%93%9a-lightblue">
   </a>
-  <a href="https://youtu.be/4TxMQ9RnHMA">
+  <!-- <a href="https://youtu.be/4TxMQ9RnHMA">
     <img src="https://img.shields.io/badge/YouTube-%23FF0000.svg?logo=YouTube&logoColor=white">
-  </a>
-  <a href="https://mp.weixin.qq.com/s/Y9uXxNMgliV9p-ne_bGpEw">
+  </a> -->
+  <!-- <a href="https://mp.weixin.qq.com/s/Y9uXxNMgliV9p-ne_bGpEw">
     <img src="https://img.shields.io/badge/中文解读-机器之心-blue">
-  </a>
-  <a href="https://eccv.ecva.net/virtual/2024/poster/177">
+  </a> -->
+  <!-- <a href="https://eccv.ecva.net/virtual/2024/poster/177">
     <img src="https://img.shields.io/badge/ECCV2024-Poster-red">
-  </a>
-</p> -->
+  </a> -->
+</p>
 
 >**TL;DR**: We present StructSplat, a feed-forward and generalizable NVS framework that predicts 3D gaussians from uncalibrated images without requiring camera parameters.
 
@@ -99,7 +99,7 @@ pip install -r requirements.txt
 
 
 ## Evaluation
-- **[Optional]** Download our pretrained checkpoint from [xxx](). Put it into folder **ckpts** as:
+<!-- - **[Optional]** Download our pretrained checkpoint from [TBD](). Put it into folder **ckpts** as:
   ```
   ckpts
   ├── dinov3_convnext_large
@@ -108,7 +108,9 @@ pip install -r requirements.txt
   │   └── ...
   └── structsplat
       └── pytorch_model.bin
-  ```
+  ``` -->
+- **[Coming Soon]** Pretrained weights will be released soon.
+
 - **[Optional]** Convert a trained checkpoint from Deepspeed format into binary format: 
   ```
   python -m deepspeed.utils.zero_to_fp32 "$deepspeed_checkpoint_dir" "ckpts/structsplat" --max_shard_size 10GB
@@ -131,6 +133,3 @@ pip install -r requirements.txt
   year={2026}
 }
  ```
-
-
-
