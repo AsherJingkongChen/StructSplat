@@ -17,4 +17,3 @@ pillow==12.0.0
 huggingface_hub==1.4.1
 safetensors==0.7.0
 opencv-python==4.11.0.86
-third_party/vggt

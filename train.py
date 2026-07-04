@@ -1,8 +1,8 @@
 import argparse
 import os
 import torch
-from src.config import load_configs
-from src.train.train_gaussian import train_gaussian
+from structsplat.config import load_configs
+from structsplat.train.train_gaussian import train_gaussian
 from pytorch_lightning.utilities import rank_zero_only
 import yaml
 

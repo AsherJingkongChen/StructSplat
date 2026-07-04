@@ -2,10 +2,10 @@ import argparse
 from hashlib import md5
 import os
 import torch
-from src.model.gaussian_wrapper import build_gaussian_wrapper
-from src.config import load_configs
-from src.callbacks.gaussian_evaluation import RecordingAndVisualizationCallback
-from src.data.gaussian_data import DataModule
+from structsplat.model.gaussian_wrapper import build_gaussian_wrapper
+from structsplat.config import load_configs
+from structsplat.callbacks.gaussian_evaluation import RecordingAndVisualizationCallback
+from structsplat.data.gaussian_data import DataModule
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import CSVLogger
 from pytorch_lightning.utilities import rank_zero_only
