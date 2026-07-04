@@ -127,32 +127,36 @@ class GaussianWrapper(pl.LightningModule):
             geo_tokens_list, patch_start_idx = self.geo_encoder(src)
 
             camera = self.camera_decoder(geo_tokens_list)[-1]
+
+            sem_feature_list = self.sem_encoder(src)[1:] if self.sem_encoder is not None else None
+
+        with torch.autocast(src.device.type, enabled=False):
+            # NOTE: pose conversions inherit dtype from camera, so cast explicitly
+            camera = camera.float()
             extrinsic = pose_encoding_to_extri(camera)
             intrinsic = pose_encoding_to_intri(camera, (H, W))
             cam_quat = self.get_cam_quat(camera)  # (B, S, 4)
 
-            sem_feature_list = self.sem_encoder(src)[1:] if self.sem_encoder is not None else None
+            if self.sem_encoder is not None:
+                depth, opacity, color, scale, raw_rotation, rotation, feat = self.gaussian_predictor(
+                    geo_tokens_list, images=src, patch_start_idx=patch_start_idx, frames_chunk_size=frame_chunk_size,
+                    sem_feature_list=sem_feature_list
+                )
 
-        if self.sem_encoder is not None:
-            depth, opacity, color, scale, raw_rotation, rotation, feat = self.gaussian_predictor(
-                geo_tokens_list, images=src, patch_start_idx=patch_start_idx, frames_chunk_size=frame_chunk_size,
-                sem_feature_list=sem_feature_list
+            depth = depth.squeeze(3)
+            del geo_tokens_list
+
+            coordinate, opacity, color, scale, rot_quat = self.output2gaussian(
+                depth,
+                opacity,
+                scale,
+                color,
+                rotation,
+                extrinsic,
+                intrinsic,
+                cam_quat,
+                self.cfg.gs_setting.scale_modifier
             )
-
-        depth = depth.squeeze(3)
-        del geo_tokens_list
-
-        coordinate, opacity, color, scale, rot_quat = self.output2gaussian(
-            depth,
-            opacity,
-            scale,
-            color,
-            rotation,
-            extrinsic,
-            intrinsic,
-            cam_quat,
-            self.cfg.gs_setting.scale_modifier
-        )
         
         predictions = {
             "images": src,
