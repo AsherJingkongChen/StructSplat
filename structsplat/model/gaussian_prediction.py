@@ -41,6 +41,7 @@ class GroupGaussianPredictor(nn.Module):
         if self.with_tex_encoder:
             x = self.tex_encoder(x, img)
         x = self.proj(x)
+        feat = rearrange(x, "(b s) c h w -> b s c h w", b=B, s=S)
         x = rearrange(x, "b (g c) h w -> b g c h w", g=self.head_number, c=self.conv_features).unbind(1)
         features = []
         for i, xi, output_conv, act, c in zip(range(self.head_number), x, self.output_convs, self.activations, self.channels):
@@ -49,5 +50,6 @@ class GroupGaussianPredictor(nn.Module):
             if i == self.head_number - 1:
                 features.append(xi) # raw_rotation
             features.append(act(xi))
-        
+        features.append(feat) # dense feature before output convs
+
         return features

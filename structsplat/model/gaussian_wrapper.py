@@ -1,6 +1,8 @@
 import torch
 import pytorch_lightning as pl
 from einops import rearrange
+from pathlib import Path
+from structsplat.config import load_configs
 from torch.nn.functional import normalize
 from torch import nn
 from structsplat.vggt.models.vggt import VGGT
@@ -89,6 +91,29 @@ class GaussianWrapper(pl.LightningModule):
         self.sem_encoder = get_semantic_encoder(cfg.module.sem_encoder.type, cfg.module.sem_encoder.path, cfg.gaussian_training_stage.data.resize.new_size)
         self.gaussian_loss = get_gaussian_train_loss(cfg.gaussian_training_stage.loss)
 
+    @classmethod
+    def from_pretrained(cls, path):
+        """Build the released checkpoint from a root directory.
+
+        Layout:
+            path/config.yaml                       # copy of the training config
+            path/structsplat/pytorch_model.bin     # StructSplat checkpoint directory (nested)
+            path/vggt/                             # VGGT checkpoint directory
+            path/dinov3_convnext_large/            # dinov3 ConvNeXt (HF format)
+        """
+        path = Path(path)
+        cfg = load_configs(path / "config.yaml")
+        cfg.module.geo_encoder.path = str(path / "vggt")
+        cfg.module.sem_encoder.path = str(path / "dinov3_convnext_large")
+        param_dict = torch.load(path / "structsplat" / "pytorch_model.bin", map_location="cpu")
+        module_dict = {
+            "gaussian_predictor": {
+                k.removeprefix("gaussian_predictor."): v
+                for k, v in param_dict.items()
+                if k.startswith("gaussian_predictor.")
+            }
+        }
+        return build_gaussian_wrapper(module_dict, cfg)
 
     def forward(
         self,
@@ -109,14 +134,14 @@ class GaussianWrapper(pl.LightningModule):
             sem_feature_list = self.sem_encoder(src)[1:] if self.sem_encoder is not None else None
 
         if self.sem_encoder is not None:
-            depth, opacity, color, scale, raw_rotation, rotation = self.gaussian_predictor(
+            depth, opacity, color, scale, raw_rotation, rotation, feat = self.gaussian_predictor(
                 geo_tokens_list, images=src, patch_start_idx=patch_start_idx, frames_chunk_size=frame_chunk_size,
                 sem_feature_list=sem_feature_list
             )
 
         depth = depth.squeeze(3)
         del geo_tokens_list
-        
+
         coordinate, opacity, color, scale, rot_quat = self.output2gaussian(
             depth,
             opacity,
@@ -139,6 +164,7 @@ class GaussianWrapper(pl.LightningModule):
             "raw_rotation": raw_rotation,
             "rotation": rot_quat,
             "depth": depth.mean(2),
+            "feats": feat,
 
             "camera_full":{
                 "extrinsic": extrinsic,
