@@ -5,7 +5,7 @@ from pathlib import Path
 from structsplat.config import load_configs
 from torch.nn.functional import normalize
 from torch import nn
-from structsplat.vggt.models.vggt import VGGT
+from safetensors import safe_open
 from structsplat.vggt.models.aggregator import Aggregator
 from structsplat.vggt.heads.camera_head import CameraHead
 from structsplat.loss.gaussian_loss import get_gaussian_train_loss
@@ -22,17 +22,20 @@ from structsplat.model.semantic_encoder import get_semantic_encoder
       
 def build_gaussian_wrapper(module_dict, cfg):
     wrapper = GaussianWrapper(cfg)
-    vggt = VGGT.from_pretrained(
-        cfg.module.geo_encoder.path, 
-    )
+    # NOTE: Read the two frozen towers lazily instead of instantiating VGGT
+    with safe_open(Path(cfg.module.geo_encoder.path) / "model.safetensors", framework="pt") as base:
+        wrapper.geo_encoder.load_state_dict(
+            {k.removeprefix("aggregator."): base.get_tensor(k) for k in base.keys() if k.startswith("aggregator.")}
+        )
+        wrapper.camera_decoder.load_state_dict(
+            {k.removeprefix("camera_head."): base.get_tensor(k) for k in base.keys() if k.startswith("camera_head.")}
+        )
 
-    wrapper.geo_encoder.load_state_dict(vggt.aggregator.state_dict())
     for param in wrapper.geo_encoder.parameters():
         param.requires_grad = False
 
     wrapper.geo_encoder.eval()
 
-    wrapper.camera_decoder.load_state_dict(vggt.camera_head.state_dict())
     for param in wrapper.camera_decoder.parameters():
         param.requires_grad = False
 
@@ -105,7 +108,7 @@ class GaussianWrapper(pl.LightningModule):
         cfg = load_configs(path / "config.yaml")
         cfg.module.geo_encoder.path = str(path / "vggt")
         cfg.module.sem_encoder.path = str(path / "dinov3_convnext_large")
-        param_dict = torch.load(path / "structsplat" / "pytorch_model.bin", map_location="cpu")
+        param_dict = torch.load(path / "structsplat" / "pytorch_model.bin", map_location="cpu", mmap=True)
         module_dict = {
             "gaussian_predictor": {
                 k.removeprefix("gaussian_predictor."): v
