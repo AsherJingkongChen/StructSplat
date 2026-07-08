@@ -1,5 +1,4 @@
-import math
-from einops import rearrange
+from einops import rearrange, einsum
 import torch
 from vggt.utils.rotation import quat_to_mat
 import torch.nn.functional as F
@@ -60,7 +59,8 @@ def depth_to_world_coords_points(
     T = rearrange(T, "b s c -> b s 1 1 1 c") # (B S 1 1 1 3)
 
     # Apply the rotation and translation to the camera coordinates
-    world_coords_points = torch.einsum("bsrc,bsghwr->bsghwc", R, cam_coords_points - T)
+    # world_coords_points = torch.einsum("b s r c, b s g h w r -> b s g h w c", R, cam_coords_points - T)
+    world_coords_points = einsum(R, cam_coords_points - T, "b s r c, b s g h w r -> b s g h w c")
 
     return world_coords_points, cam_coords_points
 

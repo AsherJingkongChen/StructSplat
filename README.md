@@ -85,7 +85,7 @@ pip install -r requirements.txt
   python train.py -c config/dl3dv.yaml
   ```
 - Importan arguments:
-  - `--conf`or`-c`:  Configuration file path.
+  - `--config`or`-c`:  Configuration file path.
   - `--gaussian_training_stage.data.annotations`: List of training data annotation file pathes, default: ```[dataset_annotations/dl3dv_train_clean.json]```.
 
 
@@ -111,7 +111,7 @@ pip install -r requirements.txt
   python evaluation.py -c config/dl3dv.yaml
   ```
 - Importan arguments:
-  - `--conf`or`-c`:  Configuration file path.
+  - `--config`or`-c`:  Configuration file path.
   - `--gaussian_evaluation_stage.data.annotations`: List of evaluation data annotation file pathes, default: ```[dataset_annotations/dl3dv_eva_src-2_tar-2.json]```.
   - `--gaussian_evaluation_stage.ckpt`: Checkpoint file path, default: ```ckpts/structsplat/pytorch_model.bin```.
 
