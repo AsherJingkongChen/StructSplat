@@ -141,7 +141,7 @@ class GaussianWrapper(pl.LightningModule):
             cam_quat = self.get_cam_quat(camera)  # (B, S, 4)
 
             if self.sem_encoder is not None:
-                depth, opacity, color, scale, raw_rotation, rotation, feat = self.gaussian_predictor(
+                depth, opacity, color, scale, raw_rotation, rotation = self.gaussian_predictor(
                     geo_tokens_list, images=src, patch_start_idx=patch_start_idx, frames_chunk_size=frame_chunk_size,
                     sem_feature_list=sem_feature_list
                 )
@@ -171,7 +171,6 @@ class GaussianWrapper(pl.LightningModule):
             "raw_rotation": raw_rotation,
             "rotation": rot_quat,
             "depth": depth.mean(2),
-            "feats": feat,
 
             "camera_full":{
                 "extrinsic": extrinsic,
