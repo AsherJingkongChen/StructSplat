@@ -1,6 +1,6 @@
 import torch
 import pytorch_lightning as pl
-from einops import rearrange
+from einops import rearrange, einsum
 from pathlib import Path
 from structsplat.config import load_configs
 from torch.nn.functional import normalize
@@ -581,12 +581,12 @@ class GaussianWrapper(pl.LightningModule):
         cam_t = camera[..., :3]
         src_cam_t2 = cam_t[:,:S_src]   # (B S_src 3)
         src_cam_t1 = src_cam1[..., :3]  # (B S_src 3)
-        t2t2_sum = torch.einsum("bsc,bsc->b", src_cam_t2, src_cam_t2)  # (B)
-        t2t1_sum = torch.einsum("bsc,bsc->b", src_cam_t2, src_cam_t1)  # (B)
-        t2_sum = torch.einsum("bsc->bc", src_cam_t2)  # (B 3)
-        t1_sum = torch.einsum("bsc->bc", src_cam_t1)  # (B 3)
-        t2_sum_t2_sum = torch.einsum("bc,bc->b", t2_sum, t2_sum)  # (B)
-        t2_sum_t1_sum = torch.einsum("bc,bc->b", t2_sum, t1_sum)  # (B)
+        t2t2_sum = einsum(src_cam_t2, src_cam_t2, "b s c, b s c -> b")  # (B)
+        t2t1_sum = einsum(src_cam_t2, src_cam_t1, "b s c, b s c -> b")  # (B)
+        t2_sum = einsum(src_cam_t2, "b s c -> b c")  # (B 3)
+        t1_sum = einsum(src_cam_t1, "b s c -> b c")  # (B 3)
+        t2_sum_t2_sum = einsum(t2_sum, t2_sum, "b c, b c -> b")  # (B)
+        t2_sum_t1_sum = einsum(t2_sum, t1_sum, "b c, b c -> b")  # (B)
         s = (t2t1_sum - t2_sum_t1_sum/S_src) / (t2t2_sum - t2_sum_t2_sum/S_src)  # (B)
         s = s.unsqueeze(-1)  # (B 1)
         dt = (t1_sum - s * t2_sum)/S_src # (B 3)
